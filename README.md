@@ -1,0 +1,26 @@
+# Boulder Notes 🧗
+
+Guida personale al bouldering: una PWA installabile sul telefono per salvare le nozioni delle lezioni, ripassarle e analizzare i blocchi.
+
+## Funzionalità
+
+- **Guida** – 10 categorie (sicurezza e cadute, attrezzatura e dispositivi, tecnica di piedi, prese e mani, movimento del corpo, riposo, lettura del blocco, riscaldamento e prevenzione, mente e progressione, regole ed etichetta). Ogni mossa spiega *perché si usa*, *quando*, *perché è importante*, come si fa ed errori comuni.
+- **Progressi** – segna le mosse come imparate o preferite, aggiungi appunti personali, ricerca e “ripasso del giorno”.
+- **Diario lezioni** – annota ogni lezione e collega le mosse trattate.
+- **Scanner** – fotografa il blocco, tocca una presa per sceglierne il colore: l’app riconosce le prese e propone una sequenza (partenza, mani, piedi, top) con link alle tecniche. Puoi correggere partenza/top a mano.
+- **Analisi AI opzionale** – con la tua API key OpenAI (salvata solo nel browser, mai nei backup) ottieni una beta più dettagliata.
+- **Timer di riposo** tra i tentativi, **backup/ripristino** JSON, funzionamento **offline**.
+
+## Sviluppo
+
+```bash
+npm install
+npm run dev      # server di sviluppo
+npm test         # test unitari (vitest)
+npm run lint     # oxlint
+npm run build    # build di produzione in dist/
+```
+
+Per usarla sul telefono pubblica `dist/` su un hosting statico HTTPS (es. GitHub Pages, Netlify) e scegli “Aggiungi a schermata Home”.
+
+> I suggerimenti dello scanner sono euristici e la guida non sostituisce un istruttore qualificato.
