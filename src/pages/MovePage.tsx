@@ -1,5 +1,7 @@
+import { MoveIllustration } from '../components/MoveIllustration'
 import { LevelBadge, MoveCard } from '../components/MoveCard'
 import { getMove } from '../data'
+import { illustrations } from '../data/illustrations'
 import { href } from '../hooks/useHashRoute'
 import { useStore } from '../hooks/useStore'
 import { NotFound } from './NotFound'
@@ -9,6 +11,7 @@ export function MovePage({ id }: { id: string }) {
   const ref = getMove(id)
   if (!ref) return <NotFound />
   const { move, category } = ref
+  const illustration = illustrations[move.id]
   const learned = data.learned.includes(move.id)
   const favorite = data.favorites.includes(move.id)
   const lessons = data.journal.filter((e) => e.moveIds.includes(move.id))
@@ -26,6 +29,8 @@ export function MovePage({ id }: { id: string }) {
       </header>
 
       <p className="lead">{move.summary}</p>
+
+      {illustration && <MoveIllustration scene={illustration} />}
 
       <div className="row gap-sm">
         <button type="button" className={learned ? 'btn success' : 'btn'} aria-pressed={learned} onClick={() => toggleLearned(move.id)}>
