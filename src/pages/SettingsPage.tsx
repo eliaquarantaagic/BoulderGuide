@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useStore } from '../hooks/useStore'
+import { DEFAULT_GEMINI_MODEL } from '../utils/aiAnalysis'
 import { exportData } from '../utils/storage'
 
 const MAX_BACKUP_BYTES = 2_000_000
@@ -40,17 +41,21 @@ export function SettingsPage() {
       <section className="card stack">
         <h2>🤖 Analisi AI dello scanner</h2>
         <p className="muted small">
-          Facoltativa. La chiave resta salvata solo su questo dispositivo (localStorage) e viene inviata solo a OpenAI quando
-          avvii un’analisi. Non è inclusa nei backup. Usa una chiave con limiti di spesa.
+          Facoltativa, con Google Gemini. Crea la chiave su{' '}
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">
+            Google AI Studio
+          </a>
+          . Resta salvata solo su questo dispositivo (localStorage), viene inviata solo a Google quando avvii un’analisi e
+          non è inclusa nei backup.
         </p>
         <label className="field">
-          API key OpenAI
+          API key Google AI Studio
           <div className="row gap-sm">
             <input
               type={showKey ? 'text' : 'password'}
-              value={data.settings.openAiKey}
-              onChange={(e) => updateSettings({ openAiKey: e.target.value })}
-              placeholder="sk-…"
+              value={data.settings.geminiKey}
+              onChange={(e) => updateSettings({ geminiKey: e.target.value })}
+              placeholder="AIza…"
               autoComplete="off"
               spellCheck={false}
             />
@@ -61,10 +66,14 @@ export function SettingsPage() {
         </label>
         <label className="field">
           Modello
-          <input value={data.settings.openAiModel} onChange={(e) => updateSettings({ openAiModel: e.target.value })} />
+          <input
+            value={data.settings.geminiModel}
+            onChange={(e) => updateSettings({ geminiModel: e.target.value })}
+            placeholder={DEFAULT_GEMINI_MODEL}
+          />
         </label>
-        {data.settings.openAiKey && (
-          <button type="button" className="btn danger" onClick={() => updateSettings({ openAiKey: '' })}>
+        {data.settings.geminiKey && (
+          <button type="button" className="btn danger" onClick={() => updateSettings({ geminiKey: '' })}>
             Rimuovi chiave
           </button>
         )}

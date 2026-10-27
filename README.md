@@ -8,7 +8,7 @@ Guida personale al bouldering: una PWA installabile sul telefono per salvare le 
 - **Progressi** – segna le mosse come imparate o preferite, aggiungi appunti personali, ricerca e “ripasso del giorno”.
 - **Diario lezioni** – annota ogni lezione e collega le mosse trattate.
 - **Scanner** – fotografa il blocco, tocca una presa per sceglierne il colore: l’app riconosce le prese e propone una sequenza (partenza, mani, piedi, top) con link alle tecniche. Puoi correggere partenza/top a mano.
-- **Analisi AI opzionale** – con la tua API key OpenAI (salvata solo nel browser, mai nei backup) ottieni una beta più dettagliata.
+- **Analisi AI opzionale** – con la tua API key di [Google AI Studio](https://aistudio.google.com/apikey) (Gemini; salvata solo nel browser, mai nei backup) ottieni una beta più dettagliata. Modello predefinito `gemini-3.8-flash`, modificabile nelle Impostazioni.
 - **Timer di riposo** tra i tentativi, **backup/ripristino** JSON, funzionamento **offline**.
 
 ## Sviluppo

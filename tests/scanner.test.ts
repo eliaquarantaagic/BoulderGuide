@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { analyzeWithAi, buildAiBody } from '../src/utils/aiAnalysis'
+import { analyzeWithAi, buildAiBody, splitDataUrl } from '../src/utils/aiAnalysis'
 import { fitSize, nearestColorName } from '../src/utils/colors'
 import { colorMatcher, detectHolds, hexToRgb, type Hold, type PixelImage, rgbToHex, rgbToHsv, sampleColor } from '../src/utils/holdDetection'
 import { planSequence } from '../src/utils/sequencePlanner'
@@ -135,32 +135,60 @@ describe('planSequence', () => {
   })
 })
 
-describe('AI analysis', () => {
-  const req = { apiKey: 'sk-test', model: 'gpt-4o-mini', imageDataUrl: 'data:image/jpeg;base64,AAA', holdColor: 'giallo' }
+describe('AI analysis (Gemini)', () => {
+  const req = { apiKey: 'AIza-test', model: 'gemini-3.8-flash', imageDataUrl: 'data:image/jpeg;base64,AAA', holdColor: 'giallo' }
+  const ok = (body: unknown) => vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body })
+  const fail = (status: number, body: unknown = {}) => vi.fn().mockResolvedValue({ ok: false, status, json: async () => body })
 
-  it('builds a vision request with the colour hint', () => {
+  it('builds an Interactions request with inline image and no server-side storage', () => {
     const body = buildAiBody(req)
-    expect(body.model).toBe('gpt-4o-mini')
-    expect(JSON.stringify(body)).toContain('giallo')
-    expect(JSON.stringify(body)).toContain('data:image/jpeg;base64,AAA')
+    expect(body.model).toBe('gemini-3.8-flash')
+    expect(body.system_instruction).toMatch(/bouldering/)
+    expect(body.input[0]).toEqual({ type: 'text', text: 'Colore delle prese del blocco: giallo.' })
+    expect(body.input[1]).toEqual({ type: 'image', data: 'AAA', mime_type: 'image/jpeg' })
+    expect(body.store).toBe(false)
+  })
+
+  it('falls back to the default model when empty', () => {
+    expect(buildAiBody({ ...req, model: '  ' }).model).toBe('gemini-3.8-flash')
+  })
+
+  it('rejects non data-URL images', () => {
+    expect(() => splitDataUrl('https://example.com/a.jpg')).toThrow()
   })
 
   it('requires an API key', async () => {
     await expect(analyzeWithAi({ ...req, apiKey: ' ' })).rejects.toThrow(/API key/)
   })
 
-  it('returns the model answer and sends the key only in the header', async () => {
-    const fetchFn = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ choices: [{ message: { content: 'Parti con...' } }] }) })
-    await expect(analyzeWithAi(req, fetchFn)).resolves.toBe('Parti con...')
+  it('joins model output text and sends the key only in the header', async () => {
+    const fetchFn = ok({
+      steps: [
+        { type: 'thought', content: [{ type: 'text', text: 'ragiono' }] },
+        { type: 'model_output', content: [{ type: 'text', text: 'Parti con' }, { type: 'text', text: 'le mani su 1.' }] },
+      ],
+    })
+    await expect(analyzeWithAi(req, fetchFn)).resolves.toBe('Parti con\nle mani su 1.')
     const [url, init] = fetchFn.mock.calls[0]
-    expect(url).toBe('https://api.openai.com/v1/chat/completions')
-    expect(init.headers.Authorization).toBe('Bearer sk-test')
-    expect(init.body).not.toContain('sk-test')
+    expect(url).toBe('https://generativelanguage.googleapis.com/v1beta/interactions')
+    expect(init.headers['x-goog-api-key']).toBe('AIza-test')
+    expect(init.body).not.toContain('AIza-test')
+  })
+
+  it('reports an empty answer', async () => {
+    await expect(analyzeWithAi(req, ok({ steps: [] }))).rejects.toThrow('Risposta vuota')
   })
 
   it('maps HTTP errors to readable messages', async () => {
-    const unauthorized = vi.fn().mockResolvedValue({ ok: false, status: 401, json: async () => ({ error: { message: 'bad' } }) })
-    await expect(analyzeWithAi(req, unauthorized)).rejects.toThrow('API key non valida.')
+    await expect(analyzeWithAi(req, fail(400, { error: { message: 'API key not valid. Please pass a valid API key.' } }))).rejects.toThrow('API key non valida')
+    // Real Gemini error payload shape (array-wrapped).
+    await expect(
+      analyzeWithAi(req, fail(400, [{ error: { code: 400, message: 'API key not valid. Please pass a valid API key.', status: 'INVALID_ARGUMENT' } }])),
+    ).rejects.toThrow('API key non valida')
+    await expect(analyzeWithAi(req, fail(400, [{ error: { message: 'Invalid input' } }]))).rejects.toThrow('Invalid input')
+    await expect(analyzeWithAi(req, fail(403))).rejects.toThrow('API key non valida')
+    await expect(analyzeWithAi(req, fail(429))).rejects.toThrow('Limite di richieste')
+    await expect(analyzeWithAi(req, fail(404))).rejects.toThrow('Modello non trovato')
     const broken = vi.fn().mockResolvedValue({ ok: false, status: 500, json: async () => { throw new Error('x') } })
     await expect(analyzeWithAi(req, broken)).rejects.toThrow('Errore HTTP 500')
   })

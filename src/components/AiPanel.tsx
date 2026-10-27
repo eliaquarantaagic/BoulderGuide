@@ -14,7 +14,7 @@ export function AiPanel({ getImageDataUrl, colorName }: Props) {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState('')
   const [error, setError] = useState('')
-  const hasKey = data.settings.openAiKey.trim().length > 0
+  const hasKey = data.settings.geminiKey.trim().length > 0
 
   const run = async () => {
     const url = getImageDataUrl()
@@ -24,8 +24,8 @@ export function AiPanel({ getImageDataUrl, colorName }: Props) {
     setResult('')
     try {
       const text = await analyzeWithAi({
-        apiKey: data.settings.openAiKey,
-        model: data.settings.openAiModel,
+        apiKey: data.settings.geminiKey,
+        model: data.settings.geminiModel,
         imageDataUrl: url,
         holdColor: colorName,
         extraNotes: notes.trim() || undefined,
@@ -43,11 +43,11 @@ export function AiPanel({ getImageDataUrl, colorName }: Props) {
       <h2>🤖 Analisi AI (opzionale)</h2>
       {!hasKey ? (
         <p className="muted small">
-          Per un’analisi più completa inserisci la tua API key OpenAI in <a href={href('impostazioni')}>Impostazioni</a>.
+          Per un’analisi più completa inserisci la tua API key di Google AI Studio in <a href={href('impostazioni')}>Impostazioni</a>.
         </p>
       ) : (
         <>
-          <p className="muted small">La foto (ridimensionata) viene inviata a OpenAI con la tua chiave. Non inviare foto con persone riconoscibili.</p>
+          <p className="muted small">La foto (ridimensionata) viene inviata a Google Gemini con la tua chiave. Non inviare foto con persone riconoscibili.</p>
           <label className="field">
             Note per l’AI (facoltativo)
             <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Es. sono alto 1,70, partenza seduta" maxLength={300} />

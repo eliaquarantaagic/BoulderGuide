@@ -43,7 +43,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     (raw: unknown) =>
       setData((d) => {
         const parsed = parseAppData(raw)
-        return { ...parsed, settings: { ...parsed.settings, openAiKey: d.settings.openAiKey } }
+        return { ...parsed, settings: { ...parsed.settings, geminiKey: d.settings.geminiKey } }
       }),
     [],
   )

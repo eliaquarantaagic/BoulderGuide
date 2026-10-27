@@ -1,3 +1,5 @@
+import { DEFAULT_GEMINI_MODEL } from './aiAnalysis'
+
 export interface JournalEntry {
   id: string
   date: string
@@ -7,8 +9,8 @@ export interface JournalEntry {
 }
 
 export interface Settings {
-  openAiKey: string
-  openAiModel: string
+  geminiKey: string
+  geminiModel: string
 }
 
 export interface AppData {
@@ -28,7 +30,7 @@ export const defaultData = (): AppData => ({
   favorites: [],
   notes: {},
   journal: [],
-  settings: { openAiKey: '', openAiModel: 'gpt-4o-mini' },
+  settings: { geminiKey: '', geminiModel: DEFAULT_GEMINI_MODEL },
 })
 
 const isStringArray = (v: unknown): v is string[] =>
@@ -70,11 +72,11 @@ export function parseAppData(raw: unknown, keepSettings = true): AppData {
     settings:
       keepSettings && settings
         ? {
-            openAiKey: typeof settings.openAiKey === 'string' ? settings.openAiKey : '',
-            openAiModel:
-              typeof settings.openAiModel === 'string' && settings.openAiModel
-                ? settings.openAiModel
-                : base.settings.openAiModel,
+            geminiKey: typeof settings.geminiKey === 'string' ? settings.geminiKey : '',
+            geminiModel:
+              typeof settings.geminiModel === 'string' && settings.geminiModel
+                ? settings.geminiModel
+                : base.settings.geminiModel,
           }
         : base.settings,
   }
@@ -96,7 +98,7 @@ export function saveData(data: AppData, storage: Pick<Storage, 'setItem'> = loca
 /** Backup never contains the API key. */
 export function exportData(data: AppData): string {
   const { settings, ...rest } = data
-  return JSON.stringify({ ...rest, settings: { openAiModel: settings.openAiModel } }, null, 2)
+  return JSON.stringify({ ...rest, settings: { geminiModel: settings.geminiModel } }, null, 2)
 }
 
 export function toggleId(list: string[], id: string): string[] {

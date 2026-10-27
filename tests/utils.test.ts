@@ -60,8 +60,13 @@ describe('storage', () => {
   })
 
   it('never exports the API key', () => {
-    const data = { ...defaultData(), settings: { openAiKey: 'sk-secret', openAiModel: 'gpt-4o-mini' } }
-    expect(exportData(data)).not.toContain('sk-secret')
+    const data = { ...defaultData(), settings: { geminiKey: 'AIza-secret', geminiModel: 'gemini-3.8-flash' } }
+    expect(exportData(data)).not.toContain('AIza-secret')
+  })
+
+  it('drops legacy OpenAI settings and uses the Gemini default model', () => {
+    const parsed = parseAppData({ settings: { openAiKey: 'sk-old', openAiModel: 'gpt-4o-mini' } })
+    expect(parsed.settings).toEqual({ geminiKey: '', geminiModel: 'gemini-3.8-flash' })
   })
 
   it('toggles ids', () => {
