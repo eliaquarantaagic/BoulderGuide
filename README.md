@@ -21,6 +21,19 @@ npm run lint     # oxlint
 npm run build    # build di produzione in dist/
 ```
 
-Per usarla sul telefono pubblica `dist/` su un hosting statico HTTPS (es. GitHub Pages, Netlify) e scegli “Aggiungi a schermata Home”.
+## Pubblicazione su GitHub Pages (per usarla sul telefono)
+
+1. Crea un repository vuoto su GitHub, poi:
+   ```bash
+   git remote add origin https://github.com/<utente>/<repo>.git
+   git checkout main && git merge feature/climbing-guide-pwa
+   git push -u origin main
+   ```
+2. Su GitHub: **Settings → Pages → Source: GitHub Actions**. Il workflow `.github/workflows/deploy.yml` esegue test e build e pubblica a ogni push su `main`.
+3. Apri `https://<utente>.github.io/<repo>/` dal telefono:
+   - **Android (Chrome):** menu ⋮ → *Installa app*.
+   - **iPhone (Safari):** Condividi → *Aggiungi alla schermata Home*.
+
+I dati restano sul singolo dispositivo: per spostarli usa *Esporta/Importa backup*. La chiave Google AI Studio va inserita su ogni dispositivo.
 
 > I suggerimenti dello scanner sono euristici e la guida non sostituisce un istruttore qualificato.
